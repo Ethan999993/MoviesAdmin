@@ -7,11 +7,11 @@
 
         public string Genre { get; set; } = string.Empty; // get movie genre 
 
-        public string Rating {  get; set; } = string.Empty; // get movie rating 
+        public string Rating { get; set; } = string.Empty; // get movie rating 
 
         public int RuntimeMinutes { get; set; } // gets the movies runtime in minutes 
 
-        public DateTime ReleaseDate { get; set; } // gets move date 
+        public DateTime ReleaseDate { get; set; } // gets movie relase date 
 
     
 
