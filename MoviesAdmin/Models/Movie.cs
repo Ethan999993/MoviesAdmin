@@ -2,8 +2,9 @@
 {
     public class Movie
     {
+        public int id { get; set; }
         public string Title { get; set; } = string.Empty; // get movie Title
-        public string Syopsis { get; set; }= string.Empty; // get movie description 
+        public string Synopsis { get; set; }= string.Empty; // get movie description 
 
         public string Genre { get; set; } = string.Empty; // get movie genre 
 
