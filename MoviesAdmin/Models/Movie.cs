@@ -1,4 +1,6 @@
-﻿namespace MoviesAdmin.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MoviesAdmin.Models
 {
     public class Movie
     {
@@ -12,6 +14,7 @@
 
         public int RuntimeMinutes { get; set; } // gets the movies runtime in minutes 
 
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime ReleaseDate { get; set; } // gets movie relase date 
 
     
