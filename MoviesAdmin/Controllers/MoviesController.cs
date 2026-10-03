@@ -14,12 +14,12 @@ public class MoviesController : Controller
     }
 
     // GET: MOVIES/Index
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
         var movies = await _context.Movie
             .OrderByDescending(t => t.ReleaseDate)// order by date descending 
             .ToListAsync(); // get all movies from db 
-        
+
         return View(movies); // display trails in view 
     }
 
@@ -32,7 +32,8 @@ public class MoviesController : Controller
             return NotFound();
         }
 
-        var movie = await _context.Movie.FirstOrDefaultAsync(m => m.id = id);  // get movie from db where is = 5
+        var movie = await _context.Movie
+            .FirstOrDefaultAsync(m => m.id == id);  // get movie from db where is = 5
 
         // was the row found in the database?
         if (movie == null)
@@ -60,7 +61,7 @@ public class MoviesController : Controller
         {
             _context.Add(movie); // add new movue to context (db)
             await _context.SaveChangesAsync(); // save context changes in db 
-           
+
             return RedirectToAction(nameof(Index)); // re driect to Movies/Index page
         }
         return View(movie);
