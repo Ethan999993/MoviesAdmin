@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAdmin.Models;
+using System.ComponentModel.DataAnnotations;
 
 public class MoviesController : Controller
 {
@@ -12,22 +13,28 @@ public class MoviesController : Controller
         _context = context;
     }
 
-    // GET: MOVIES
+    // GET: MOVIES/Index
     public async Task<IActionResult> Index()    
     {
-        return View(await _context.Movie.ToListAsync());
+        var movies = await _context.Movie
+            .OrderByDescending(t => t.ReleaseDate)// order by date descending 
+            .ToListAsync(); // get all movies from db 
+        
+        return View(movies); // display trails in view 
     }
 
     // GET: MOVIES/Details/5
     public async Task<IActionResult> Details(int? id)
     {
+        // is a Id included in URL
         if (id == null)
         {
             return NotFound();
         }
 
-        var movie = await _context.Movie
-            .FirstOrDefaultAsync(m => m.id == id);
+        var movie = await _context.Movie.FirstOrDefaultAsync(m => m.id = id);  // get movie from db where is = 5
+
+        // was the row found in the database?
         if (movie == null)
         {
             return NotFound();
@@ -49,11 +56,12 @@ public class MoviesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("id,Title,Synopsis,Genre,Rating,RuntimeMinutes,ReleaseDate")] Movie movie)
     {
-        if (ModelState.IsValid)
+        if (ModelState.IsValid) // validate input 
         {
-            _context.Add(movie);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            _context.Add(movie); // add new movue to context (db)
+            await _context.SaveChangesAsync(); // save context changes in db 
+           
+            return RedirectToAction(nameof(Index)); // re driect to Movies/Index page
         }
         return View(movie);
     }
