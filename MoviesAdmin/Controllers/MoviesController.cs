@@ -2,15 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAdmin.Models;
+using MoviesAdmin.Services;
 using System.ComponentModel.DataAnnotations;
 
 public class MoviesController : Controller
 {
     private readonly MoviesAdminContext _context;
 
-    public MoviesController(MoviesAdminContext context)
+    private readonly AzureStorageService _azureStorage;
+
+    public MoviesController(MoviesAdminContext context, AzureStorageService azureStorage)
     {
         _context = context;
+        _azureStorage = azureStorage;
     }
 
     // GET: MOVIES/Index
@@ -55,10 +59,29 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,Genre,Rating,RuntimeMinutes,ReleaseDate")] Movie movie)
+    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate")] Movie movie, IFormFile? ImageUpload)
     {
+        //Validate if image file is MissingFieldException 
+        if (ImageUpload == null)
+        {
+            //Include a validation error message and return form
+            ModelState.AddModelError("ImageUpload", "Image file is required");
+
+        }
         if (ModelState.IsValid) // validate input 
         {
+
+            //make a unique filename (GUID.ext)
+            string extension = Path.GetExtension(ImageUpload!.FileName); // includes the leading dot, e.g. ".jpg"
+            string newFileName = $"{Guid.NewGuid()}{extension}";
+
+
+            // upload file to azure storage 
+            string url = await _azureStorage.UploadFileAsync(ImageUpload, newFileName);
+
+            // set the image url in movie record
+            movie.ImageUrl = url;
+
             _context.Add(movie); // add new movue to context (db)
             await _context.SaveChangesAsync(); // save context changes in db 
 
@@ -88,7 +111,7 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,Genre,Rating,RuntimeMinutes,ReleaseDate")] Movie movie)
+    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate, ImageUrl")] Movie movie)
     {
         if (id != movie.id)
         {

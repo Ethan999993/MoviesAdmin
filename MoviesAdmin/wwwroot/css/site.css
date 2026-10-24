@@ -39,3 +39,8 @@ body {
     width: 175px;
     height: auto;
 }
+
+.thumbnail {
+    width: 150px;
+    height: auto;
+}

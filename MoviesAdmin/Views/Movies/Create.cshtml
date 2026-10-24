@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="mb-3">
@@ -19,22 +19,11 @@
 
             <div class="mb-3">
                 <label asp-for="Synopsis" class="form-label"></label>
-                <input asp-for="Synopsis" class="form-control" />
+                <textarea asp-for="Synopsis" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Synopsis" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Genre" class="form-label"></label>
-                <input asp-for="Genre" class="form-control" />
-                <span asp-validation-for="Genre" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Rating" class="form-label"></label>
-                <input asp-for="Rating" class="form-control" />
-                <span asp-validation-for="Rating" class="text-danger"></span>
-            </div>
-
+            
             <div class="mb-3">
                 <label asp-for="RuntimeMinutes" class="form-label"></label>
                 <input asp-for="RuntimeMinutes" class="form-control" />
@@ -45,6 +34,12 @@
                 <label asp-for="ReleaseDate" class="form-label"></label>
                 <input asp-for="ReleaseDate" class="form-control" />
                 <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+
+             <div class="mb-3">
+                <label for="ImageUpload" class="form-label">Image Upload</label>
+                <input type="file" id="ImageUpload" name="ImageUpload" class="form-control" />     
+                @Html.ValidationMessage("ImageUpload", new { @class = "text-danger" })
             </div>
             <div class="mb-3">
                 <input type="submit" value="Create" class="btn btn-primary" />

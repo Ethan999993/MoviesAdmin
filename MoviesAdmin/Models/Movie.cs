@@ -1,12 +1,27 @@
-﻿using System.Globalization;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace MoviesAdmin.Models
 {
     public class Movie
     {
         public int id { get; set; }
-      [StringLength(100)]
+
+
+        // foreign key
+        [Display(Name = "Genre")]
+        public int GenreId { get; set; }
+
+        // navigation property
+        [ValidateNever]
+        public Genre Genre { get; set; } = null!;
+
+
+
+
+
+        [StringLength(100)]
         [Required]
 
         public string Title { get; set; } = string.Empty; // get movie Title
@@ -16,18 +31,16 @@ namespace MoviesAdmin.Models
 
         public string Synopsis { get; set; }= string.Empty; // get movie description 
 
-        [Required]
-
-        public string Genre { get; set; } = string.Empty; // get movie genre 
-
-        [Required]
-        public string Rating { get; set; } = string.Empty; // get movie rating
+       
 
         [Display(Name = "Runtime (Min)")]
 
         [Range(1, 200)]
         [Required]
         public int RuntimeMinutes { get; set; } // gets the movies runtime in minutes 
+
+
+        public string ImageUrl { get; set; } = string.Empty;
 
         [DisplayFormat(DataFormatString = "{0:MMM dd, yyyy}")]
         [Required]
