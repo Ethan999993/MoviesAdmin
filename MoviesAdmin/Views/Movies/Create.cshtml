@@ -23,6 +23,13 @@
                 <span asp-validation-for="Synopsis" class="text-danger"></span>
             </div>
 
+            <div class="mb-3">
+                <label asp-for="GenreId" class="control-label"></label>
+                <select asp-for="GenreId" class="form-select" asp-items="ViewBag.GenreId"></select>
+            </div>
+
+
+
             
             <div class="mb-3">
                 <label asp-for="RuntimeMinutes" class="form-label"></label>

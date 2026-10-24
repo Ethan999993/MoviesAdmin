@@ -17,7 +17,13 @@ namespace MoviesAdmin.Models
         [ValidateNever]
         public Genre Genre { get; set; } = null!;
 
+        // foreign key
+        [Display(Name = "AudienceRating")]
+        public int AudienceRatingId { get; set; }
 
+        // navigation property
+        [ValidateNever]
+        public AudienceRating AudienceRating { get; set; } = null!;
 
 
 

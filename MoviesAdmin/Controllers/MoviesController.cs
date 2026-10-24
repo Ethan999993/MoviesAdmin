@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MoviesAdmin.Models;
 using MoviesAdmin.Services;
@@ -22,9 +23,10 @@ public class MoviesController : Controller
     {
         var movies = await _context.Movie
             .OrderByDescending(t => t.ReleaseDate)// order by date descending 
+            .Include(m => m.Genre)
             .ToListAsync(); // get all movies from db 
 
-        return View(movies); // display trails in view 
+        return View(movies); // display  in view 
     }
 
     // GET: MOVIES/Details/5
@@ -37,6 +39,7 @@ public class MoviesController : Controller
         }
 
         var movie = await _context.Movie
+            .Include(m => m.Genre)
             .FirstOrDefaultAsync(m => m.id == id);  // get movie from db where is = 5
 
         // was the row found in the database?
@@ -51,6 +54,12 @@ public class MoviesController : Controller
     // GET: MOVIES/Create
     public IActionResult Create()
     {
+
+        // create a select list for the categories
+        var genres = _context.Genre.ToList();
+        ViewBag.GenreId = new SelectList(genres, "Id", "Title");
+
+
         return View();
     }
 
@@ -59,7 +68,7 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate")] Movie movie, IFormFile? ImageUpload)
+    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,GenreId")] Movie movie, IFormFile? ImageUpload)
     {
         //Validate if image file is MissingFieldException 
         if (ImageUpload == null)
@@ -87,6 +96,15 @@ public class MoviesController : Controller
 
             return RedirectToAction(nameof(Index)); // re driect to Movies/Index page
         }
+
+
+        // create a select list for the categories
+        var genres = _context.Genre.ToList();
+        ViewBag.GenreId = new SelectList(genres, "Id", "Title");
+
+
+
+
         return View(movie);
     }
 
@@ -103,6 +121,12 @@ public class MoviesController : Controller
         {
             return NotFound();
         }
+
+        // create a select list for the categories
+        var genres = _context.Genre.ToList();
+        ViewBag.GenreId = new SelectList(genres, "Id", "Title");
+
+
         return View(movie);
     }
 
@@ -111,7 +135,7 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate, ImageUrl")] Movie movie)
+    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId")] Movie movie)
     {
         if (id != movie.id)
         {
@@ -138,6 +162,12 @@ public class MoviesController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // create a select list for the categories
+        var genres = _context.Genre.ToList();
+        ViewBag.GenreId = new SelectList(genres, "Id", "Title");
+
+
         return View(movie);
     }
 

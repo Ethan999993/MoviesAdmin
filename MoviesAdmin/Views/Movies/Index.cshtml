@@ -16,6 +16,13 @@
             <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.GenreId)
+            </th>
+
+
+
             @*
             <th>
                 @Html.DisplayNameFor(model => model.Synopsis)
@@ -40,6 +47,11 @@
             <td>
                 @Html.DisplayFor(model => item.Title)
             </td>
+                <td>
+                    @Html.DisplayFor(model => item.Genre.Title) @* show the Title in the nav property *@
+                </td>
+
+
             @*
             <td>
                 @Html.DisplayFor(model => item.Synopsis)
