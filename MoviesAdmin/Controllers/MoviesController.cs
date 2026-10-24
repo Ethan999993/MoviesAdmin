@@ -24,6 +24,7 @@ public class MoviesController : Controller
         var movies = await _context.Movie
             .OrderByDescending(t => t.ReleaseDate)// order by date descending 
             .Include(m => m.Genre)
+            .Include(m => m.AudienceRating)
             .ToListAsync(); // get all movies from db 
 
         return View(movies); // display  in view 
@@ -40,6 +41,7 @@ public class MoviesController : Controller
 
         var movie = await _context.Movie
             .Include(m => m.Genre)
+            .Include(m => m.AudienceRating)
             .FirstOrDefaultAsync(m => m.id == id);  // get movie from db where is = 5
 
         // was the row found in the database?
@@ -59,6 +61,11 @@ public class MoviesController : Controller
         var genres = _context.Genre.ToList();
         ViewBag.GenreId = new SelectList(genres, "Id", "Title");
 
+        // create a select list for the categories
+        var audiencerating = _context.AudienceRating.ToList();
+        ViewBag.AudienceRatingId = new SelectList(audiencerating, "Id", "Title");
+
+
 
         return View();
     }
@@ -68,7 +75,7 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,GenreId")] Movie movie, IFormFile? ImageUpload)
+    public async Task<IActionResult> Create([Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,GenreId,AudienceRatingId")] Movie movie, IFormFile? ImageUpload)
     {
         //Validate if image file is MissingFieldException 
         if (ImageUpload == null)
@@ -101,7 +108,9 @@ public class MoviesController : Controller
         // create a select list for the categories
         var genres = _context.Genre.ToList();
         ViewBag.GenreId = new SelectList(genres, "Id", "Title");
-
+        // create a select list for the categories
+        var audiencerating = _context.AudienceRating.ToList();
+        ViewBag.AudienceRatingId = new SelectList(audiencerating, "Id", "Title");
 
 
 
@@ -126,6 +135,10 @@ public class MoviesController : Controller
         var genres = _context.Genre.ToList();
         ViewBag.GenreId = new SelectList(genres, "Id", "Title");
 
+        // create a select list for the categories
+        var audiencerating = _context.AudienceRating.ToList();
+        ViewBag.AudienceRatingId = new SelectList(audiencerating, "Id", "Title");
+
 
         return View(movie);
     }
@@ -135,7 +148,7 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId")] Movie movie)
+    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId,AudienceRatingId")] Movie movie)
     {
         if (id != movie.id)
         {
@@ -166,6 +179,10 @@ public class MoviesController : Controller
         // create a select list for the categories
         var genres = _context.Genre.ToList();
         ViewBag.GenreId = new SelectList(genres, "Id", "Title");
+
+        // create a select list for the categories
+        var audiencerating = _context.AudienceRating.ToList();
+        ViewBag.AudienceRatingId = new SelectList(audiencerating, "Id", "Title");
 
 
         return View(movie);
