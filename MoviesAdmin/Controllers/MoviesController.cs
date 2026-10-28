@@ -57,11 +57,11 @@ public class MoviesController : Controller
     public IActionResult Create()
     {
 
-        // create a select list for the categories
+        // create a select list for the Genres
         var genres = _context.Genre.ToList();
         ViewBag.GenreId = new SelectList(genres, "Id", "Title");
 
-        // create a select list for the categories
+        // create a select list for the 
         var audiencerating = _context.AudienceRating.ToList();
         ViewBag.AudienceRatingId = new SelectList(audiencerating, "Id", "Title");
 
