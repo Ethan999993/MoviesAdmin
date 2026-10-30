@@ -1,11 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAdmin.Models;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace MoviesAdmin.Controllers
-{
+
+
+
+    [Authorize(Roles = "Admin")]
+
     public class AudienceRatingsController : Controller
     {
         private readonly MoviesAdminContext _context;
@@ -145,4 +149,3 @@ namespace MoviesAdmin.Controllers
             return _context.AudienceRating.Any(e => e.Id == id);
         }
     }
-}

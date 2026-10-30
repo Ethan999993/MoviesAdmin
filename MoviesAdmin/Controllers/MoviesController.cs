@@ -1,10 +1,13 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MoviesAdmin.Models;
 using MoviesAdmin.Services;
 using System.ComponentModel.DataAnnotations;
+
+[Authorize]
 
 public class MoviesController : Controller
 {
@@ -54,6 +57,7 @@ public class MoviesController : Controller
     }
 
     // GET: MOVIES/Create
+    [Authorize(Roles = "Admin")]
     public IActionResult Create()
     {
 
@@ -118,6 +122,8 @@ public class MoviesController : Controller
     }
 
     // GET: MOVIES/Edit/5
+
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -148,6 +154,8 @@ public class MoviesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
+    
+
     public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId,AudienceRatingId")] Movie movie)
     {
         if (id != movie.id)

@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
+
+
 namespace MoviesAdmin.Models
 {
     public class Movie
@@ -24,6 +26,14 @@ namespace MoviesAdmin.Models
         // navigation property
         [ValidateNever]
         public AudienceRating AudienceRating { get; set; } = null!;
+
+        // navigation property 
+        [ValidateNever]
+        public List<CriticReview> CriticReviews { get; set; } = new List<CriticReview>();
+
+
+
+
 
 
 

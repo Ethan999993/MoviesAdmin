@@ -33,8 +33,7 @@ builder.Services.Configure<OpenIdConnectOptions>(Auth0Constants.AuthenticationSc
         RoleClaimType = "https://localhost:7032/roles" // change to your app's domain
     };
 });
-
-
+// end Auth0 Setup 
 
 
 
