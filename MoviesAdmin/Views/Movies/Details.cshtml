@@ -1,0 +1,67 @@
+@model MoviesAdmin.Models.Movie
+@using Microsoft.AspNetCore.Html
+
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 class="mb-3">@Html.DisplayFor(model => model.Title)</h1>
+
+    <div class ="mb-3">
+
+        <img src ="@Model.ImageUrl" alt ="@Model.Title" class ="w-25" />
+    </div>
+
+    <dl>
+       
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Synopsis)
+        </dt>
+      <dd class ="col-sm-10">
+          @{
+             var descriptionWithBreaks = new HtmlString(
+                Model.Synopsis.Replace("\r\n", "<br />")
+                    .Replace("\n", "<br />")
+                    .Replace("\r", "<br />"));
+
+        }
+
+        @descriptionWithBreaks
+      </dd>
+
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.GenreId)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Genre.Title)
+    </dd>
+
+        <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.AudienceRatingId)
+    </dt>
+        <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.AudienceRating.Title)
+    </dd>
+   
+        
+    
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RuntimeMinutes)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RuntimeMinutes)
+        </dd>
+   
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ReleaseDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ReleaseDate)
+        </dd>
+    </dl>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
