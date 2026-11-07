@@ -16,21 +16,21 @@
             <th>
                 @Html.DisplayNameFor(model => model.Movie)
             </th>
-            <th>
+            @* <th>
                 @Html.DisplayNameFor(model => model.Description)
-            </th>
+            </th> *@
             <th>
                 @Html.DisplayNameFor(model => model.Rating)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsPublished)
             </th>
-            <th>
+            @* <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
-            </th>
-            <th>
+            </th> *@
+            @* <th>
                 @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
+            </th> *@
             <th></th>
         </tr>
     </thead>
@@ -41,26 +41,35 @@
             <td>
                 @Html.DisplayFor(model => item.Movie.Title)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(model => item.Description)
-            </td>
+            </td> *@
             <td>
                 @Html.DisplayFor(model => item.Rating)
             </td>
             <td>
                 @Html.DisplayFor(model => item.IsPublished)
             </td>
-            <td>
+            @* <td>
                 @Html.DisplayFor(model => item.CreatedBy)
-            </td>
-            <td>
+            </td> *@
+            @* <td>
                 @Html.DisplayFor(model => item.CreatedDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+            </td> *@
+                <td>
+                    @if (!item.IsPublished)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> @:|
+                    }
+
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+
+                    @if (!item.IsPublished)
+                    {
+                        @:|
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                </td>
         </tr>
 }
     </tbody>

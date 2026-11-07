@@ -32,7 +32,6 @@ public class MoviesController : Controller
 
         return View(movies); // display  in view 
     }
-
     // GET: MOVIES/Details/5
     public async Task<IActionResult> Details(int? id)
     {
@@ -45,7 +44,7 @@ public class MoviesController : Controller
         var movie = await _context.Movie
             .Include(m => m.Genre)
             .Include(m => m.AudienceRating)
-            .FirstOrDefaultAsync(m => m.id == id);  // get movie from db where is = 5
+            .FirstOrDefaultAsync(m => m.id == id);
 
         // was the row found in the database?
         if (movie == null)
@@ -53,8 +52,14 @@ public class MoviesController : Controller
             return NotFound();
         }
 
+        // Count published reviews for this movie
+        ViewBag.PublishedReviewCount = await _context.CriticReview
+            .CountAsync(r => r.MovieId == id && r.IsPublished);
+
         return View(movie);
     }
+
+
 
     // GET: MOVIES/Create
     [Authorize(Roles = "Admin")]
@@ -104,7 +109,7 @@ public class MoviesController : Controller
             // set the image url in movie record
             movie.ImageUrl = url;
 
-            _context.Add(movie); // add new movue to context (db)
+            _context.Add(movie); // add new movie to context (db)
             await _context.SaveChangesAsync(); // save context changes in db 
 
             return RedirectToAction(nameof(Index)); // re driect to Movies/Index page
@@ -158,7 +163,7 @@ public class MoviesController : Controller
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Admin")]
 
-    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId,AudienceRatingId")] Movie movie)
+    public async Task<IActionResult> Edit(int? id, [Bind("id,Title,Synopsis,RuntimeMinutes,ReleaseDate,ImageUrl,GenreId,AudienceRatingId")] Movie movie, IFormFile? ImageUpload)
     {
         if (id != movie.id)
         {
@@ -167,6 +172,32 @@ public class MoviesController : Controller
 
         if (ModelState.IsValid)
         {
+            if (ImageUpload != null)
+            {
+                // TO-DO: save the new image and link to this trail record. Also nice to delete old file.
+
+
+
+                //make a unique filename (GUID.ext)
+                string extension = Path.GetExtension(ImageUpload!.FileName); // includes the leading dot, e.g. ".jpg"
+                string newFileName = $"{Guid.NewGuid()}{extension}";
+
+
+                // upload file to azure storage 
+                string url = await _azureStorage.UploadFileAsync(ImageUpload, newFileName);
+
+                // set the image url in movie record
+                movie.ImageUrl = url;
+
+            
+
+               
+
+            }
+
+
+
+
             try
             {
                 _context.Update(movie);

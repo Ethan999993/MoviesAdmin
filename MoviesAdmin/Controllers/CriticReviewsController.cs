@@ -12,28 +12,28 @@ using MoviesAdmin.Models;
 using MoviesAdmin;
 
 
-    [Authorize]
-    public class CriticReviewsController : Controller
+[Authorize(Roles = "Moviecritic")]
+public class CriticReviewsController : Controller
+{
+    private readonly MoviesAdminContext _context;
+    private string? _userId;
+
+    public CriticReviewsController(MoviesAdminContext context)
     {
-        private readonly MoviesAdminContext _context;
-        private string? _userId;
+        _context = context;
+    }
 
-        public CriticReviewsController(MoviesAdminContext context)
-        {
-            _context = context;
-        }
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        base.OnActionExecuting(context);
+        _userId = User.GetUserId();
 
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            base.OnActionExecuting(context);
-            _userId = User.GetUserId();
-            
-        }
+    }
 
-   
-        // GET: CriticReviews
-        public async Task<IActionResult> Index()
-        {
+
+    // GET: CriticReviews
+    public async Task<IActionResult> Index()
+    {
         // Get reviews that belong to the logged in user
         var reviews = await _context.CriticReview
             .Where(c => c.CreatedBy == _userId)
@@ -42,161 +42,231 @@ using MoviesAdmin;
 
         return View(reviews);
     }
-        // GET: CriticReviews/Details/5
-            public async Task<IActionResult> Details(int? id)
+    // GET: CriticReviews/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var criticReview = await _context.CriticReview
-                 .Where(m =>m.CreatedBy == _userId)
-                .Include(c => c.Movie)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (criticReview == null)
-            {
-                return NotFound();
-            }
-
-            return View(criticReview);
+            return NotFound();
         }
 
-        // GET: CriticReviews/Create
-        public IActionResult Create(int? movieId)
+        var criticReview = await _context.CriticReview
+             .Where(m => m.CreatedBy == _userId)
+            .Include(c => c.Movie)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (criticReview == null)
         {
-            ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", movieId);
-            return View();
+            return NotFound();
         }
 
-        // POST: CriticReviews/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,MovieId,Description,Rating,IsPublished")] CriticReview criticReview)
+        return View(criticReview);
+    }
 
+    // GET: CriticReviews/Create
+    public IActionResult Create(int? movieId)
+    {
+        ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", movieId);
+        return View();
+    }
 
+    // POST: CriticReviews/Create
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,MovieId,Description,Rating,IsPublished")] CriticReview criticReview)
+    {
+        // Get the logged in user's ID
+        criticReview.CreatedBy = _userId;
+
+        // Only check for an existing review if the reviewer wants to publish this one aka then can create a draft but then can't publish another review  
+        if (criticReview.IsPublished)
         {
-            criticReview.CreatedBy = _userId;  
-              
-
-
-            if (ModelState.IsValid)
+            // Check if this reviewer already has a published review for this movie
+            bool alreadyPublished = await _context.CriticReview
+                .AnyAsync(c => c.CreatedBy == _userId
+                    && c.MovieId == criticReview.MovieId
+                    && c.IsPublished);
+            // Prevent the reviewer from publishing another review for the same movie
+            if (alreadyPublished)
             {
-                
-                _context.Add(criticReview);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("IsPublished",
+                    "You already have a published review for this movie.");
             }
-
-            ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", criticReview.MovieId);
-            return View(criticReview);
         }
 
-        // GET: CriticReviews/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        if (ModelState.IsValid)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var criticReview = await _context.CriticReview
-                .Where(c =>c.CreatedBy == _userId && c.IsPublished == false)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (criticReview == null)
-            {
-                return NotFound();
-            }
-
-            ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", criticReview.MovieId);
-            return View(criticReview);
-        }
-
-        // POST: CriticReviews/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,MovieId,Description,Rating,IsPublished,CreatedBy,CreatedDate")] CriticReview criticReview)
-        {
-            if (id != criticReview.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(criticReview);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CriticReviewExists(criticReview.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", criticReview.MovieId);
-            return View(criticReview);
-        }
-
-        // GET: CriticReviews/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var criticReview = await _context.CriticReview
-                .Where(m => m.CreatedBy == _userId)
-                .Include(c => c.Movie)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (criticReview == null)
-            {
-                return NotFound();
-            }
-
-            return View(criticReview);
-        }
-
-        // POST: CriticReviews/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var criticReview = await _context.CriticReview.FindAsync(id);
-
-            if (criticReview != null)
-            {
-                _context.CriticReview.Remove(criticReview);
-            }
-
+            _context.Add(criticReview);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CriticReviewExists(int id)
-        {
-            return _context.CriticReview.Any(e => e.Id == id);
-        }
+        ViewData["MovieId"] = new SelectList(
+            _context.Movie, "id", "Title", criticReview.MovieId);
+
+        return View(criticReview);
     }
 
+    // GET: CriticReviews/Edit/5
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
 
- 
+        }
+
+        var criticReview = await _context.CriticReview
+            .Where(c => c.CreatedBy == _userId && c.IsPublished == false)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (criticReview == null)
+        {
+            return NotFound();
+        }
+
+        if (criticReview.IsPublished)
+        {
+
+            return NotFound();
+
+        }
+
+
+
+
+        ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", criticReview.MovieId);
+        return View(criticReview);
+    }
+
+    // POST: CriticReviews/Edit/5
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, [Bind("Id,MovieId,Description,Rating,IsPublished,CreatedBy,CreatedDate")] CriticReview criticReview)
+    {
+        if (id != criticReview.Id)
+        {
+            return NotFound();
+        }
+
+        // Get the existing review
+        var existingReview = await _context.CriticReview
+            .FirstOrDefaultAsync(c => c.Id == id && c.CreatedBy == _userId);
+
+        if (existingReview == null)
+        {
+            return NotFound();
+        }
+
+        // Published reviews cannot be edited
+        if (existingReview.IsPublished)
+        {
+            return NotFound();
+        }
+
+        // Check if the reviewer already has another published review for this movie
+        if (criticReview.IsPublished)
+        {
+            bool alreadyPublished = await _context.CriticReview
+                .AnyAsync(c => c.CreatedBy == _userId
+                    && c.MovieId == criticReview.MovieId
+                    && c.IsPublished
+                    && c.Id != id);
+
+            if (alreadyPublished)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "You already have a published review for this movie.");
+            }
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                _context.Update(criticReview);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CriticReviewExists(criticReview.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        ViewData["MovieId"] = new SelectList(_context.Movie, "id", "Title", criticReview.MovieId);
+
+        return View(criticReview);
+    }
+
+    // GET: CriticReviews/Delete/5
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var criticReview = await _context.CriticReview
+            .Where(m => m.CreatedBy == _userId)
+            .Include(c => c.Movie)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (criticReview == null)
+        {
+            return NotFound();
+        }
+
+        if (criticReview.IsPublished)
+        {
+
+            return NotFound();
+
+        }
+
+
+
+
+
+
+        return View(criticReview);
+    }
+
+    // POST: CriticReviews/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var criticReview = await _context.CriticReview.FindAsync(id);
+
+        if (criticReview != null)
+        {
+            _context.CriticReview.Remove(criticReview);
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    private bool CriticReviewExists(int id)
+    {
+        return _context.CriticReview.Any(e => e.Id == id);
+    }
+}
+
+
+
 

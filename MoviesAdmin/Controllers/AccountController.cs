@@ -33,5 +33,12 @@ namespace MoviesAdmin.Controllers
         {
             return View();
         }
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied(string returnUrl)
+        {
+            return View();
+        }
+
     }
 }
